@@ -35,7 +35,9 @@ export function Navbar() {
           <Link href="/projects" className="hover:text-primary">
             Templates
           </Link>
-          <Button variant="outline">Login</Button>
+          <Button asChild variant="outline">
+            <Link href="/auth">Login</Link>
+          </Button>
         </div>
 
         {/* Mobile */}
@@ -46,7 +48,9 @@ export function Navbar() {
             </SheetTrigger>
             <SheetContent className="flex flex-col gap-6 pt-10">
               <Link href="/projects">Templates</Link>
-              <Button variant="outline">Login</Button>
+              <Button asChild variant="outline">
+                <Link href="/auth">Login</Link>
+            </Button>
             </SheetContent>
           </Sheet>
         </div>

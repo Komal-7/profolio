@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "./ui/card";
+import Link from "next/link";
 
 export function LandingPage() {
   const templates = [
@@ -96,9 +97,12 @@ export function LandingPage() {
             </h2>
           </div>
 
-          <Button className="mt-6 bg-[#0c7ff2] text-slate-50 min-w-[84px] max-w-[480px] h-10 px-4 sm:h-12 sm:px-5">
-            Get Started
-          </Button>
+          <Button
+            asChild
+            className="mt-6 bg-[#0c7ff2] text-slate-50 min-w-[84px] max-w-[480px] h-10 px-4 sm:h-12 sm:px-5"
+        >
+            <Link href="/auth">Get Started</Link>
+        </Button>
         </div>
       </section>
 
