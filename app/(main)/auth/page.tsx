@@ -12,7 +12,7 @@ import {
 
 export default function AuthPage() {
   return (
-    <div className="h-screen flex items-center justify-center bg-[#f8f9fb] px-4">
+    <div className="h-screen overflow-hidden flex items-center justify-center bg-[#f8f9fb] px-4">
       <Card className="w-full max-w-md border-none shadow-none flex flex-col p-6">
         <Tabs defaultValue="signup" className="w-full">
           <div className="flex justify-center mb-6">
