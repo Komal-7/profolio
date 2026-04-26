@@ -4,12 +4,15 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function Navbar() {
+  const { user, logout } = useAuth();
+
   return (
     <nav className="w-full border-b bg-background sticky top-0 z-50 shadow-sm">
       <div className="mx-auto max-w-6xl flex items-center justify-between px-4 py-3">
-        
+
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 text-xl font-bold">
           <div className="w-6 h-6">
@@ -35,9 +38,23 @@ export function Navbar() {
           <Link href="/projects" className="hover:text-primary">
             Templates
           </Link>
-          <Button asChild variant="outline">
-            <Link href="/auth">Login</Link>
-          </Button>
+          {user ? (
+            <>
+              <Link href="/dashboard" className="hover:text-primary">
+                Dashboard
+              </Link>
+              <span className="text-sm text-muted-foreground">
+                {user.username}
+              </span>
+              <Button variant="outline" onClick={logout}>
+                Logout
+              </Button>
+            </>
+          ) : (
+            <Button asChild variant="outline">
+              <Link href="/auth">Login</Link>
+            </Button>
+          )}
         </div>
 
         {/* Mobile */}
@@ -48,9 +65,21 @@ export function Navbar() {
             </SheetTrigger>
             <SheetContent className="flex flex-col gap-6 pt-10">
               <Link href="/projects">Templates</Link>
-              <Button asChild variant="outline">
-                <Link href="/auth">Login</Link>
-            </Button>
+              {user ? (
+                <>
+                  <Link href="/dashboard">Dashboard</Link>
+                  <span className="text-sm text-muted-foreground">
+                    {user.username}
+                  </span>
+                  <Button variant="outline" onClick={logout}>
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <Button asChild variant="outline">
+                  <Link href="/auth">Login</Link>
+                </Button>
+              )}
             </SheetContent>
           </Sheet>
         </div>
