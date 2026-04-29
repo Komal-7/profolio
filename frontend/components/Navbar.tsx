@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
+import { Menu, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function Navbar() {
@@ -43,6 +43,9 @@ export function Navbar() {
               <Link href="/dashboard" className="hover:text-primary">
                 Dashboard
               </Link>
+              <Link href="/settings" className="hover:text-primary">
+                <Settings className="w-4 h-4" />
+              </Link>
               <span className="text-sm text-muted-foreground">
                 {user.username}
               </span>
@@ -68,6 +71,7 @@ export function Navbar() {
               {user ? (
                 <>
                   <Link href="/dashboard">Dashboard</Link>
+                  <Link href="/settings">Settings</Link>
                   <span className="text-sm text-muted-foreground">
                     {user.username}
                   </span>

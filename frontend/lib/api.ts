@@ -93,6 +93,20 @@ class ApiClient {
     });
   }
 
+  async updateUsername(username: string): Promise<User> {
+    return this.request<User>("/auth/username", {
+      method: "PUT",
+      body: JSON.stringify({ username }),
+    });
+  }
+
+  async updatePassword(currentPassword: string, newPassword: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>("/auth/password", {
+      method: "PUT",
+      body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+    });
+  }
+
   // Portfolio endpoints
   async getPortfolios(): Promise<Portfolio[]> {
     return this.request<Portfolio[]>("/portfolios");

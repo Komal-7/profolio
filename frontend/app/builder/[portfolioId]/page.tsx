@@ -2,12 +2,14 @@
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Puck, Data } from "@measured/puck";
+import { Puck, Data, Render } from "@measured/puck";
 import "@measured/puck/puck.css";
 import { puckConfig, defaultPageData } from "../puck.config";
 import { api, Portfolio, ChatMessage } from "@/lib/api";
-import { ArrowLeft, Save, Globe, Copy, Check } from "lucide-react";
+import { ArrowLeft, Save, Globe, Copy, Check, Eye, Edit3 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+
+const AUTO_SAVE_DELAY = 3000; // 3 seconds
 
 // ─── TYPES ─────────────────────────────────────────────────────────────────────
 type Message = {
@@ -175,6 +177,9 @@ export default function BuilderPage() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Load portfolio and chat history
   useEffect(() => {
@@ -218,6 +223,36 @@ export default function BuilderPage() {
     const timer = setTimeout(fix, 500);
     return () => clearTimeout(timer);
   }, [puckKey]);
+
+  // Auto-save effect
+  useEffect(() => {
+    if (!hasUnsavedChanges || !portfolio || saving) return;
+
+    // Clear existing timer
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current);
+    }
+
+    // Set new timer for auto-save
+    autoSaveTimerRef.current = setTimeout(async () => {
+      setSaving(true);
+      try {
+        await api.updatePortfolio(portfolioId, { puck_json: pageData as Record<string, unknown> });
+        setHasUnsavedChanges(false);
+        setLastSaved(new Date());
+      } catch (err) {
+        console.error("Auto-save failed:", err);
+      } finally {
+        setSaving(false);
+      }
+    }, AUTO_SAVE_DELAY);
+
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, [hasUnsavedChanges, pageData, portfolio, portfolioId, saving]);
 
   const handleSave = async () => {
     if (!portfolio) return;

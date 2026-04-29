@@ -28,3 +28,12 @@ class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserResponse
+
+
+class UsernameUpdate(BaseModel):
+    username: str = Field(..., min_length=3, max_length=50, pattern=r"^[a-zA-Z0-9_-]+$")
+
+
+class PasswordUpdate(BaseModel):
+    current_password: str
+    new_password: str = Field(..., min_length=6)
