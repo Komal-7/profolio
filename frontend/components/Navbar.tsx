@@ -35,9 +35,6 @@ export function Navbar() {
 
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-6">
-          <Link href="/projects" className="hover:text-primary">
-            Templates
-          </Link>
           {user ? (
             <>
               <Link href="/dashboard" className="hover:text-primary">
@@ -67,7 +64,6 @@ export function Navbar() {
               <Menu />
             </SheetTrigger>
             <SheetContent className="flex flex-col gap-6 pt-10">
-              <Link href="/projects">Templates</Link>
               {user ? (
                 <>
                   <Link href="/dashboard">Dashboard</Link>
