@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// ─── COMPONENT SCHEMAS (sent to AI so it knows what it can build) ──────────────
-const COMPONENT_SCHEMAS = `
-You are an AI assistant helping users build their portfolio website.
-The portfolio is built using a component system. Each component has a type and props.
+// ─── SYSTEM PROMPT (sent to AI so it knows what it can build) ──────────────
+const SYSTEM_PROMPT = `
+You are an AI assistant helping users build their portfolio website. You have TWO modes of operation:
 
-AVAILABLE COMPONENTS AND THEIR PROPS:
+MODE 1: CANVAS UPDATE (action: "update")
+Use this when the user wants to ADD, MODIFY, or DELETE something on their portfolio canvas.
+Examples: "add a projects section", "change the navbar color to blue", "update my bio", "remove the footer"
+
+MODE 2: CONVERSATION (action: "chat")
+Use this when the user is asking for ADVICE, IDEAS, FEEDBACK, or having a general conversation.
+Examples: "what should I write in my bio?", "give me headline ideas", "what colors look professional?", "how can I make my portfolio stand out?"
+
+AVAILABLE COMPONENTS AND THEIR PROPS (for canvas updates):
 
 1. Navbar
 {
@@ -96,16 +103,12 @@ AVAILABLE COMPONENTS AND THEIR PROPS:
 
 CURRENT PAGE DATA will be provided as JSON.
 
-YOUR JOB:
-- Understand the user's natural language request
-- Return an updated version of the full page data JSON
-- When adding a new component, append it to the content array in the right position (navbar first, footer last)
-- When modifying an existing component, update only the relevant props
-- Always ensure IDs are unique
-- Use dark, professional color schemes by default: bg #0f172a or #1e293b, text #f8fafc
-- Respond ONLY with valid JSON in this exact format:
+YOUR RESPONSE FORMAT:
+Always respond with valid JSON in ONE of these two formats:
 
+FOR CANVAS UPDATES (when user wants to modify the portfolio):
 {
+  "action": "update",
   "message": "A friendly short message describing what you did",
   "updatedPageData": {
     "content": [...],
@@ -113,7 +116,25 @@ YOUR JOB:
   }
 }
 
-Do not include any text outside the JSON. No markdown, no backticks, no explanations outside the JSON.
+FOR CONVERSATION (when user wants advice, ideas, or is chatting):
+{
+  "action": "chat",
+  "message": "Your helpful conversational response here. Be friendly, specific, and helpful. You can use multiple paragraphs if needed."
+}
+
+GUIDELINES FOR CANVAS UPDATES:
+- When adding a new component, append it to the content array in the right position (navbar first, footer last)
+- When modifying an existing component, update only the relevant props
+- Always ensure IDs are unique
+- Use dark, professional color schemes by default: bg #0f172a or #1e293b, text #f8fafc
+
+GUIDELINES FOR CONVERSATION:
+- Be helpful, friendly, and specific
+- Give concrete examples and suggestions
+- If the user asks for ideas, provide 3-5 options they can choose from
+- You can reference their current portfolio content to give personalized advice
+
+Do not include any text outside the JSON. No markdown code fences, no backticks, no explanations outside the JSON.
 `;
 
 export async function POST(req: NextRequest) {
@@ -121,14 +142,14 @@ export async function POST(req: NextRequest) {
   const { message, pageData } = await req.json();
 
   const prompt = `
-    ${COMPONENT_SCHEMAS}
+${SYSTEM_PROMPT}
 
-    CURRENT PAGE DATA:
-    ${JSON.stringify(pageData, null, 2)}
+CURRENT PAGE DATA:
+${JSON.stringify(pageData, null, 2)}
 
-    USER REQUEST:
-    ${message}
-  `;
+USER MESSAGE:
+${message}
+`;
 
   // ── Try Groq first (free tier), fallback message if no key ──────────────────
   const GROQ_API_KEY = process.env.GROQ_API_KEY;
@@ -160,8 +181,8 @@ export async function POST(req: NextRequest) {
   // ── No API key configured ───────────────────────────────────────────────────
   if (!aiResponse) {
     return NextResponse.json({
-      message:
-        "No AI API key configured.",
+      action: "chat",
+      message: "No AI API key configured.",
       updatedPageData: null,
     });
   }
@@ -177,14 +198,15 @@ export async function POST(req: NextRequest) {
     const parsed = JSON.parse(cleaned);
 
     return NextResponse.json({
+      action: parsed.action || "update",
       message: parsed.message,
-      updatedPageData: parsed.updatedPageData,
+      updatedPageData: parsed.action === "chat" ? null : parsed.updatedPageData,
     });
   } catch (e) {
     console.error("Failed to parse AI response:", aiResponse);
     return NextResponse.json({
-      message:
-        "The AI returned an unexpected response. Please try rephrasing your request.",
+      action: "chat",
+      message: "The AI returned an unexpected response. Please try rephrasing your request.",
       updatedPageData: null,
     });
   }

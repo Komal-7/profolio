@@ -65,11 +65,12 @@ function ChatPanel({
 
       const data = await response.json();
 
-      if (data.updatedPageData) {
+      // Only update canvas if action is "update" and we have data
+      if (data.action === "update" && data.updatedPageData) {
         onDataChange(data.updatedPageData);
       }
 
-      const assistantMessage = data.message || "Done! Check the canvas.";
+      const assistantMessage = data.message || (data.action === "update" ? "Done! Check the canvas." : "I'm here to help!");
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: assistantMessage },
@@ -199,7 +200,7 @@ export default function BuilderPage() {
           ? chatHistory.map((msg) => ({ role: msg.role, content: msg.content }))
           : [{
               role: "assistant" as const,
-              content: "Hi! I can help you build your portfolio. Try saying something like:\n\n• \"Add a navbar with my name John Doe\"\n• \"Change the hero headline to Full Stack Developer\"\n• \"Add a projects section with 3 projects\"",
+              content: "Hi! I can help you build your portfolio. I can:\n\n• Build & edit your portfolio:\n  \"Add a navbar with my name\"\n  \"Change colors to dark blue\"\n\n• Give advice & ideas:\n  \"What should I write in my bio?\"\n  \"Suggest some headline ideas\"\n\nJust ask!",
             }];
         setChatMessages(messages);
       } catch (err) {
