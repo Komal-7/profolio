@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, ExternalLink, Trash2, Globe, FileEdit } from "lucide-react";
+import { Plus, ExternalLink, Trash2, Globe, FileEdit, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,7 @@ export default function DashboardPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newName, setNewName] = useState("");
   const [newSlug, setNewSlug] = useState("");
+  const [cloneFrom, setCloneFrom] = useState<string>("");
   const [createLoading, setCreateLoading] = useState(false);
   const [createError, setCreateError] = useState("");
 
@@ -44,7 +45,7 @@ export default function DashboardPage() {
     setCreateLoading(true);
 
     try {
-      const portfolio = await api.createPortfolio(newName, newSlug);
+      const portfolio = await api.createPortfolio(newName, newSlug, cloneFrom || undefined);
       router.push(`/builder/${portfolio.id}`);
     } catch (err) {
       setCreateError(err instanceof Error ? err.message : "Failed to create portfolio");
@@ -226,6 +227,32 @@ export default function DashboardPage() {
                 )}
               </div>
 
+              {portfolios.length > 0 && (
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-1 block">
+                    Start from
+                  </label>
+                  <select
+                    value={cloneFrom}
+                    onChange={(e) => setCloneFrom(e.target.value)}
+                    className="w-full h-10 px-3 rounded-md border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Blank portfolio</option>
+                    {portfolios.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                  {cloneFrom && (
+                    <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                      <Copy className="w-3 h-3" />
+                      Will copy layout from selected portfolio
+                    </p>
+                  )}
+                </div>
+              )}
+
               {createError && (
                 <p className="text-red-500 text-sm">{createError}</p>
               )}
@@ -239,6 +266,7 @@ export default function DashboardPage() {
                     setShowCreateModal(false);
                     setNewName("");
                     setNewSlug("");
+                    setCloneFrom("");
                     setCreateError("");
                   }}
                 >

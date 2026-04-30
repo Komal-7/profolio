@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 class PortfolioCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     slug: str = Field(..., min_length=1, max_length=100, pattern=r"^[a-z0-9-]+$")
+    clone_from: Optional[UUID] = None
 
 
 class PortfolioUpdate(BaseModel):

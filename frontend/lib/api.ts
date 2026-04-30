@@ -105,10 +105,10 @@ class ApiClient {
     return this.request<Portfolio[]>("/portfolios");
   }
 
-  async createPortfolio(name: string, slug: string): Promise<Portfolio> {
+  async createPortfolio(name: string, slug: string, cloneFrom?: string): Promise<Portfolio> {
     return this.request<Portfolio>("/portfolios", {
       method: "POST",
-      body: JSON.stringify({ name, slug }),
+      body: JSON.stringify({ name, slug, clone_from: cloneFrom }),
     });
   }
 

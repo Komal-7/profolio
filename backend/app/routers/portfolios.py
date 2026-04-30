@@ -53,11 +53,27 @@ async def create_portfolio(
             detail="You already have a portfolio with this slug",
         )
 
+    # Get puck_json from source portfolio if cloning
+    puck_json = None
+    if portfolio_data.clone_from:
+        result = await db.execute(
+            select(Portfolio).where(
+                Portfolio.id == portfolio_data.clone_from,
+                Portfolio.user_id == current_user.id,
+            )
+        )
+        source_portfolio = result.scalar_one_or_none()
+        if source_portfolio:
+            puck_json = source_portfolio.puck_json
+
     portfolio = Portfolio(
         user_id=current_user.id,
         name=portfolio_data.name,
         slug=portfolio_data.slug,
     )
+    if puck_json:
+        portfolio.puck_json = puck_json
+
     db.add(portfolio)
     await db.commit()
     await db.refresh(portfolio)
