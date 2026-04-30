@@ -175,6 +175,7 @@ export default function BuilderPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
   const [isPreviewMode, setIsPreviewMode] = useState(false);
@@ -270,9 +271,15 @@ export default function BuilderPage() {
   const handlePublish = async () => {
     if (!portfolio) return;
     try {
+      // Save changes first if there are any
+      if (hasUnsavedChanges) {
+        await api.updatePortfolio(portfolioId, { puck_json: pageData as Record<string, unknown> });
+        setHasUnsavedChanges(false);
+        setLastSaved(new Date());
+      }
       const updated = await api.publishPortfolio(portfolioId, portfolio.slug);
       setPortfolio(updated);
-      alert("Portfolio published!");
+      setHasUnpublishedChanges(false);
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to publish");
     }
@@ -299,6 +306,7 @@ export default function BuilderPage() {
   const handleDataChange = useCallback((data: Data) => {
     setPageData(data);
     setHasUnsavedChanges(true);
+    setHasUnpublishedChanges(true);
   }, []);
 
   if (loading) {
@@ -359,17 +367,29 @@ export default function BuilderPage() {
             className="flex items-center gap-1 text-xs bg-slate-700 text-white px-3 py-1.5 rounded-lg hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             <Save className="w-3 h-3" />
-            {saving ? "Saving..." : "Save"}
+            {saving ? "Saving..." : "Save Draft"}
           </button>
 
           {portfolio?.is_published ? (
-            <button
-              onClick={handleUnpublish}
-              className="flex items-center gap-1 text-xs bg-amber-600 text-white px-3 py-1.5 rounded-lg hover:bg-amber-500 transition-colors"
-            >
-              <Globe className="w-3 h-3" />
-              Unpublish
-            </button>
+            <>
+              {hasUnpublishedChanges && (
+                <button
+                  onClick={handlePublish}
+                  disabled={saving}
+                  className="flex items-center gap-1 text-xs bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-500 disabled:opacity-40 transition-colors"
+                >
+                  <Globe className="w-3 h-3" />
+                  Update Live Site
+                </button>
+              )}
+              <button
+                onClick={handleUnpublish}
+                className="flex items-center gap-1 text-xs bg-amber-600 text-white px-3 py-1.5 rounded-lg hover:bg-amber-500 transition-colors"
+              >
+                <Globe className="w-3 h-3" />
+                Unpublish
+              </button>
+            </>
           ) : (
             <button
               onClick={handlePublish}
@@ -389,7 +409,6 @@ export default function BuilderPage() {
             key={puckKey}
             config={puckConfig}
             data={pageData}
-            onPublish={handleSave}
             onChange={handleDataChange}
           />
         </div>

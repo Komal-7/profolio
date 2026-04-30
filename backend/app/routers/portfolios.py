@@ -197,6 +197,7 @@ async def publish_portfolio(
         portfolio.slug = publish_data.slug
 
     portfolio.is_published = True
+    portfolio.published_puck_json = portfolio.puck_json  # Copy current draft to published
     portfolio.published_at = datetime.utcnow()
     portfolio.updated_at = datetime.utcnow()
     await db.commit()
@@ -263,7 +264,7 @@ async def get_public_portfolio(
     return PublicPortfolioResponse(
         name=portfolio.name,
         slug=portfolio.slug,
-        puck_json=portfolio.puck_json,
+        puck_json=portfolio.published_puck_json or portfolio.puck_json,
         published_at=portfolio.published_at,
         username=portfolio.user.username,
     )

@@ -29,6 +29,9 @@ class Portfolio(Base):
     puck_json: Mapped[Dict[str, Any]] = mapped_column(
         JSONB, nullable=False, default=lambda: {"content": [], "root": {"props": {}}}
     )
+    published_puck_json: Mapped[Optional[Dict[str, Any]]] = mapped_column(
+        JSONB, nullable=True, default=None
+    )
     is_published: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     published_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
