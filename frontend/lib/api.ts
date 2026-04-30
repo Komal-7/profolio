@@ -93,13 +93,6 @@ class ApiClient {
     });
   }
 
-  async updateUsername(username: string): Promise<User> {
-    return this.request<User>("/auth/username", {
-      method: "PUT",
-      body: JSON.stringify({ username }),
-    });
-  }
-
   async updatePassword(currentPassword: string, newPassword: string): Promise<{ message: string }> {
     return this.request<{ message: string }>("/auth/password", {
       method: "PUT",

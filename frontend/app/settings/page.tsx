@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, User, Lock, Check } from "lucide-react";
+import { ArrowLeft, Lock, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,13 +11,7 @@ import { api } from "@/lib/api";
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { user, updateUser, logout } = useAuth();
-
-  // Username form
-  const [username, setUsername] = useState(user?.username || "");
-  const [usernameLoading, setUsernameLoading] = useState(false);
-  const [usernameError, setUsernameError] = useState("");
-  const [usernameSuccess, setUsernameSuccess] = useState(false);
+  const { user } = useAuth();
 
   // Password form
   const [currentPassword, setCurrentPassword] = useState("");
@@ -26,24 +20,6 @@ export default function SettingsPage() {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState(false);
-
-  const handleUsernameUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setUsernameError("");
-    setUsernameSuccess(false);
-    setUsernameLoading(true);
-
-    try {
-      const updatedUser = await api.updateUsername(username);
-      updateUser(updatedUser);
-      setUsernameSuccess(true);
-      setTimeout(() => setUsernameSuccess(false), 3000);
-    } catch (err) {
-      setUsernameError(err instanceof Error ? err.message : "Failed to update username");
-    } finally {
-      setUsernameLoading(false);
-    }
-  };
 
   const handlePasswordUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,59 +78,6 @@ export default function SettingsPage() {
           <p className="text-sm text-gray-500">{user?.email}</p>
         </div>
       </div>
-
-      {/* Username Section */}
-      <Card className="p-6 mb-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-blue-100 rounded-lg">
-            <User className="w-5 h-5 text-blue-600" />
-          </div>
-          <div>
-            <h2 className="font-semibold text-[#0d141c]">Username</h2>
-            <p className="text-sm text-gray-500">This appears in your public portfolio URLs</p>
-          </div>
-        </div>
-
-        <form onSubmit={handleUsernameUpdate} className="space-y-4">
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-1 block">
-              Username
-            </label>
-            <Input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="username"
-              pattern="^[a-zA-Z0-9_-]+$"
-              minLength={3}
-              maxLength={50}
-              required
-            />
-            <p className="text-xs text-gray-400 mt-1">
-              Only letters, numbers, underscores, and hyphens
-            </p>
-          </div>
-
-          {usernameError && (
-            <p className="text-red-500 text-sm">{usernameError}</p>
-          )}
-
-          {usernameSuccess && (
-            <p className="text-green-600 text-sm flex items-center gap-1">
-              <Check className="w-4 h-4" />
-              Username updated successfully
-            </p>
-          )}
-
-          <Button
-            type="submit"
-            disabled={usernameLoading || username === user?.username}
-            className="bg-[#0c7ff2] hover:bg-[#0a6dd4] text-white"
-          >
-            {usernameLoading ? "Saving..." : "Save Username"}
-          </Button>
-        </form>
-      </Card>
 
       {/* Password Section */}
       <Card className="p-6 mb-6">
