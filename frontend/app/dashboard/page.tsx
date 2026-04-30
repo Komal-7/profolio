@@ -219,22 +219,11 @@ export default function DashboardPage() {
                   }}
                   required
                 />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-1 block">
-                  URL Slug
-                </label>
-                <Input
-                  type="text"
-                  placeholder="my-portfolio"
-                  value={newSlug}
-                  onChange={(e) => setNewSlug(e.target.value)}
-                  pattern="^[a-z0-9-]+$"
-                  required
-                />
-                <p className="text-xs text-gray-400 mt-1">
-                  Your portfolio will be at: /u/{user?.username}/{newSlug || "..."}
-                </p>
+                {newSlug && (
+                  <p className="text-xs text-gray-500 mt-2">
+                    URL: <span className="font-mono text-blue-600">/u/{user?.username}/{newSlug}</span>
+                  </p>
+                )}
               </div>
 
               {createError && (

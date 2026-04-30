@@ -74,14 +74,6 @@ export function LandingPage() {
               >
                 <Link href="/auth">Get Started Free</Link>
               </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="border-slate-600 text-slate-800 hover:bg-slate-800 hover:text-white px-8 h-12 text-base"
-              >
-                <Link href="/auth">Sign In</Link>
-              </Button>
             </div>
           </div>
         </div>
