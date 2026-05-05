@@ -216,11 +216,24 @@ export default function BuilderPage() {
   // Fix Puck canvas padding
   useEffect(() => {
     const fix = () => {
+      // Canvas
       const inner = document.querySelector('[class*="PuckCanvas-inner"]') as HTMLElement;
       if (inner) {
         inner.style.paddingBottom = "35px";
         inner.style.boxSizing = "content-box";
       }
+
+      // All sidebars (left + right)
+      const sidebars = document.querySelectorAll('[class*="Sidebar"]') as NodeListOf<HTMLElement>;
+      sidebars.forEach((el) => {
+        if (
+          el.className.includes("--right") ||
+          el.className.includes("--left")
+        ) {
+          el.style.paddingBottom = "35px";
+          el.style.boxSizing = "content-box";
+        }
+      });
     };
     const timer = setTimeout(fix, 500);
     return () => clearTimeout(timer);

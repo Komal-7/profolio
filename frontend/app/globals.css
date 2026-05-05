@@ -119,7 +119,14 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    scroll-behavior: smooth;
+  }
   body {
     @apply bg-background text-foreground;
+  }
+  /* Offset for sticky navbar when scrolling to sections */
+  section[id], footer[id] {
+    scroll-margin-top: 80px;
   }
 }
